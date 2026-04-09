@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Multi-agent academic paper writing system using CrewAI + ZhipuAI GLM"
 requires-python = ">=3.10"
 dependencies = [
-    "crewai>=0.80.0",
+    "crewai[litellm]>=0.80.0",
     "crewai-tools>=0.14.0",
     "python-dotenv>=1.0.0",
 ]
