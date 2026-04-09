@@ -18,10 +18,10 @@ def _clear_stdin():
         pass
 
 
-def _safe_filename(course_name: str, suffix: str) -> str:
+def _safe_filename(course_name: str) -> str:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe = course_name.replace(" ", "_")
-    return f"{safe}_{suffix}_{ts}.md"
+    return f"{safe}_{ts}.md"
 
 
 def run_full_flow(course_name: str, requirements: str = "") -> str:
@@ -71,31 +71,22 @@ def run_full_flow(course_name: str, requirements: str = "") -> str:
             outline = run_outline_crew(selected_topic, course_name, research_notes + "\n用户修改建议：" + extra)
 
     # ── Step 4: 写作 ─────────────────────────────────────────
-    output_dir = os.path.join(os.path.dirname(__file__), "output")
-    os.makedirs(output_dir, exist_ok=True)
-
-    draft_file = _safe_filename(course_name, "draft")
     print(f"\n【阶段 4/5】撰写论文全文...\n")
-    run_writing_crew(
-        selected_topic, course_name, outline, research_notes, draft_file
+    draft = run_writing_crew(
+        selected_topic, course_name, outline, research_notes
     )
 
-    # 从保存的文件读取实际论文内容（crew 返回的是摘要，不是论文）
-    draft_path = os.path.join(output_dir, draft_file)
-    with open(draft_path, "r", encoding="utf-8") as f:
-        draft = f.read()
-
     # ── Step 5: 审阅 ─────────────────────────────────────────
-    final_file = _safe_filename(course_name, "final")
     print(f"\n【阶段 5/5】审阅润色...\n")
-    run_review_crew(course_name, draft, final_file)
+    final = run_review_crew(course_name, draft)
 
-    # 审阅后的最终版本已由 reviewer 保存到文件，直接读取
+    # 保存最终版本到 output 目录
+    output_dir = os.path.join(os.path.dirname(__file__), "output")
+    os.makedirs(output_dir, exist_ok=True)
+    final_file = _safe_filename(course_name)
     final_path = os.path.join(output_dir, final_file)
-    # 如果 reviewer 返回的是摘要而非论文内容，需要从保存的文件读取
-    if not os.path.exists(final_path) or os.path.getsize(final_path) < 100:
-        # 文件不存在或太小，说明 reviewer 没有正确保存，使用 draft 作为最终版
-        final_path = draft_path
+    with open(final_path, "w", encoding="utf-8") as f:
+        f.write(final)
 
     print(f"\n{'='*60}")
     print(f"  论文写作完成！")

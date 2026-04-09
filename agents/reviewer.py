@@ -1,7 +1,6 @@
 from crewai import Agent, Task
 
 from config.llm import get_llm
-from tools.file_tool import save_to_file
 
 
 def create_reviewer() -> Agent:
@@ -15,7 +14,6 @@ def create_reviewer() -> Agent:
             "你的审阅意见总是建设性的，帮助作者提升论文质量。"
         ),
         llm=get_llm(),
-        tools=[save_to_file],
         verbose=True,
     )
 
@@ -24,7 +22,6 @@ def create_review_task(
     agent: Agent,
     course_name: str,
     draft_content: str,
-    filename: str,
 ) -> Task:
     return Task(
         description=(
@@ -38,13 +35,12 @@ def create_review_task(
             "4. 检查格式是否规范（标题层级、引用格式等）\n"
             "5. 对发现的问题直接进行润色修改\n"
             "6. 确保总字数在 3000-5000 字范围内\n\n"
-            "请直接输出润色后的完整论文（而不是只输出修改意见）。"
-            "在论文末尾附上简短的审阅说明，列出主要修改内容。\n\n"
-            f"将最终版本保存到文件 {filename}"
+            "重要：你的最终回复必须是润色后的完整论文全文（Markdown 格式），"
+            "不要只给出审阅意见或摘要。在论文末尾附上简短的审阅说明。"
         ),
         expected_output=(
-            "经过审阅和润色后的完整论文，使用 Markdown 格式。"
-            "论文末尾附有审阅说明，列出主要修改内容。并已保存到指定文件。"
+            "经过审阅和润色后的完整论文全文（Markdown 格式），"
+            "论文末尾附有审阅说明。字数 3000-5000 字。"
         ),
         agent=agent,
     )

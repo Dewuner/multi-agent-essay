@@ -8,11 +8,10 @@ def run_writing_crew(
     course_name: str,
     outline: str,
     research_notes: str,
-    filename: str,
 ) -> str:
-    """运行论文写作阶段，返回论文草稿"""
+    """运行论文写作阶段，返回论文草稿全文"""
     agent = create_writer()
-    task = create_writing_task(agent, topic, course_name, outline, research_notes, filename)
+    task = create_writing_task(agent, topic, course_name, outline, research_notes)
 
     crew = Crew(
         agents=[agent],

@@ -1,7 +1,6 @@
 from crewai import Agent, Task
 
 from config.llm import get_llm
-from tools.file_tool import save_to_file
 
 
 def create_writer() -> Agent:
@@ -15,7 +14,6 @@ def create_writer() -> Agent:
             "你特别注意论点的逻辑性、论据的充分性和语言的准确性。"
         ),
         llm=get_llm(),
-        tools=[save_to_file],
         verbose=True,
     )
 
@@ -26,7 +24,6 @@ def create_writing_task(
     course_name: str,
     outline: str,
     research_notes: str,
-    filename: str,
 ) -> Task:
     return Task(
         description=(
@@ -43,13 +40,12 @@ def create_writing_task(
             "5. 总字数控制在 3000-5000 字\n"
             "6. 包含参考文献列表\n"
             "7. 使用 Markdown 格式\n\n"
-            f"写完后请将内容保存到文件 {filename}\n\n"
-            "输出完整的论文全文，不要省略任何章节。"
+            "重要：你的最终回复必须是完整的论文全文（Markdown 格式），"
+            "不要只给出摘要或说明。直接输出论文内容，不要添加任何前言或总结。"
         ),
         expected_output=(
-            "一篇完整的课程论文，包含标题、摘要、正文各章节和参考文献。"
-            "使用 Markdown 格式，字数 3000-5000 字，并已保存到指定文件。"
+            "完整的课程论文全文（Markdown 格式），包含标题、摘要、正文各章节和参考文献。"
+            "字数 3000-5000 字。"
         ),
         agent=agent,
-        output_file=filename,
     )
